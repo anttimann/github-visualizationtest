@@ -1,3 +1,0 @@
-div
-    div(ng-repeat="contrib in project.contribs | orderBy: '-size'")
-        a(ng-href='#/{{project.user}}/{{contrib.name}}') {{contrib.name}}: {{contrib.size}}

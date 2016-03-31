@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var _ = require('lodash');
+require('./github');
 
-angular.module('vincit', ['ngRoute', 'ngResource'])
+angular.module('vincit', ['ngRoute', 'GitHubVisualization'])
  
 .config(function($routeProvider) {
     $routeProvider
@@ -9,19 +9,59 @@ angular.module('vincit', ['ngRoute', 'ngResource'])
             controller: 'ProjectListController as projectList',
             templateUrl: 'partials/list'
         })
-})
+});
+},{"./github":4}],2:[function(require,module,exports){
+angular.module('Datatable', [])
 
+.directive('ghvDatatable', function() {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            data: '=',
+            filter: '=',
+            titles: '='
+        },
+        templateUrl: 'partials/datatable',
+        link: function (scope) {
+            scope.sort = {
+                type: 'commits',
+                reverse: true
+            };
+        }
+    }
+});
+},{}],3:[function(require,module,exports){
+angular.module('DatalistFilter', [])
+
+.directive('ghvDatalistFilter', function() {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            title: '@',
+            filter: '=',
+            filterName: '@',
+            options: '='
+        },
+        templateUrl: 'partials/datalist'
+    }
+});
+
+},{}],4:[function(require,module,exports){
+require('./filters/datalist');
+require('./displays/datatable');
+
+var _ = require('lodash');
+
+angular.module('GitHubVisualization', ['ngResource', 'DatalistFilter', 'Datatable'])
+    
 .factory('GithubUserRepos', function($resource) {
     return $resource('/github/:userId');
-})    
+})
 
-.controller('ProjectListController', function($routeParams, GithubUserRepos) { 
+.controller('ProjectListController', function($routeParams, GithubUserRepos) {
     var ctrl = this;
-
-    ctrl.sort = {
-        type: 'commits',
-        reverse: true
-    };
 
     ctrl.filter = {
     };
@@ -29,21 +69,32 @@ angular.module('vincit', ['ngRoute', 'ngResource'])
     ctrl.githubUser = '';
     ctrl.users = [];
     ctrl.commiters = [];
-
-    var unfilteredCommiters = [];
-    ctrl.getGithubData = getGithubData;
+    
+    ctrl.getGitHubData = getGitHubData;
 
     if ($routeParams.userId) {
         ctrl.githubUser = $routeParams.userId;
-        ctrl.getGithubData($routeParams.userId);
+        ctrl.getGitHubData($routeParams.userId);
     }
-    
-    function getGithubData(userId) {
+
+    function getGitHubData(userId) {
         ctrl.filter = {
         };
         ctrl.users = [];
         ctrl.commiters = [];
-        
+        ctrl.titles = [
+            {
+                id: 'name',
+                title: 'Name'
+            }, {
+                id: 'repository',
+                title: 'Repository'
+            }, {
+                id: 'commits',
+                title: 'Commits'
+            }
+        ];
+
         GithubUserRepos.get({userId: userId}, function (values) {
             delete values.$promise;
             delete values.$resolved;
@@ -52,7 +103,7 @@ angular.module('vincit', ['ngRoute', 'ngResource'])
                 .keys()
                 .sort().value();
 
-            unfilteredCommiters = ctrl.commiters = _(values)
+            ctrl.commiters = _(values)
                 .values()
                 .flatten().value();
 
@@ -61,10 +112,10 @@ angular.module('vincit', ['ngRoute', 'ngResource'])
                 .uniq()
                 .sort().value();
         });
-    };
+    }
 });
 
-},{"lodash":2}],2:[function(require,module,exports){
+},{"./displays/datatable":2,"./filters/datalist":3,"lodash":5}],5:[function(require,module,exports){
 (function (global){
 /**
  * @license

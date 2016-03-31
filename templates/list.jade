@@ -1,8 +1,8 @@
 div.container
     div.well
         div.row
-            div.col-xs-12
-                form.form-group(ng-submit="projectList.getGithubData(projectList.githubUser)")
+            div.col-xs-12.col-md-8
+                form.form-group(ng-submit="projectList.getGitHubData(projectList.githubUser)")
                     div.input-group
                         div.input-group-addon
                             i.fa.fa-search
@@ -11,31 +11,10 @@ div.container
                         
         div.row
             div.col-xs-12.col-sm-6.col-md-4
-                div.form-group
-                    label(for="repository") Filter by repository
-                    input.form-control(id="repository", type="text", list="repository_list", ng-model="projectList.filter.repository")
-                    datalist(id="repository_list", style="display:none;")
-                        option(ng-repeat="repo in projectList.repositories", value=repo) {{repo}}
+                ghv-datalist-filter(title="Filter by repository", options="projectList.repositories", filter="projectList.filter", filter-name="repository")
             div.col-xs-12.col-sm-6.col-md-4
-                div.form-group
-                    label(for="user") Filter by user
-                    input.form-control(id="user", type="text", list="user_list", ng-model="projectList.filter.name")
-                    datalist.form-control(id="user_list", style="display:none;")
-                        option(ng-repeat="user in projectList.users", value=user) {{user}}
+                ghv-datalist-filter(title="Filter by user", options="projectList.users", filter="projectList.filter", filter-name="name")         
                         
     div.row
         div.col-xs-12
-            table.table.table-striped.table-bordered(id="commits", cellspacing="0")
-                thead
-                    tr
-                        th 
-                            a(ng-click="projectList.sort.type='name'; projectList.sort.reverse=!projectList.sort.reverse") Name
-                        th
-                            a(ng-click="projectList.sort.type='repository'; projectList.sort.reverse=!projectList.sort.reverse") Repository
-                        th
-                            a(ng-click="projectList.sort.type='commits'; projectList.sort.reverse=!projectList.sort.reverse") Commits
-                tbody
-                    tr(ng-repeat="user in projectList.commiters | orderBy:projectList.sort.type:projectList.sort.reverse | filter:projectList.filter ")
-                        td {{user.name}}
-                        td {{user.repository}}
-                        td {{user.commits}}
+            ghv-datatable(data="projectList.commiters", titles="projectList.titles", filter="projectList.filter")
