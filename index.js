@@ -4,7 +4,9 @@ const config  = require('./server/config');
 
 exports.register = (server, options, next) => {
     let plugins = [
-        { register: require('vision') }
+        { register: require('vision') },
+        { register: require('inert') },
+        { register: require('./server/github') }
     ];
     
     server.register(plugins, (err) => {

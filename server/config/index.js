@@ -11,7 +11,8 @@ module.exports = {
         },
         views: {
             engines: {jade: require('jade')},
-            path: rootPath + '/templates'
+            path: rootPath + '/templates',
+            isCached: false
         }
     }
 };
